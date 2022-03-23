@@ -1,21 +1,30 @@
 #include "minitalk.h"
 
-void	send_message(int pid, cha )
+void	send_message(int pid, char *bits)
 {
+	int i;
 
+	i = 0;
+	while(bits[i] != '\0')
+	{
+		if(bits[i] == '1')
+			kill(pid, SIGUSR1);
+		if(bits[i] == '0')
+			kill(pid, SIGUSR2);
+		i++;
+	}
 }
 
 char	*convert_to_bits(char *str)
 {
 	size_t	i;
 	char	*converted;
-	int		bit;
 
 	i = ft_strlen(str);
 	converted = malloc(i * 8 * sizeof(char) + 1);
-	bit = 8;
-	while ()
+	while (i >= 0)
 	{
+
 	}
 	return (converted);
 

@@ -1,8 +1,6 @@
 NAME1 = server
 NAME2 = client
 
-OBJ = $(patsubst %.c, %.o, $(SRCS1))
-
 FLAGS = -Wall -Werror -Wextra
 
 
@@ -13,7 +11,6 @@ all :
 
 clean :
 		cd ft_printf && make clean
-		rm -rf $()
 
 fclean : clean
 		rm -rf $(NAME1) $(NAME2)
