@@ -1,46 +1,81 @@
 #include "minitalk.h"
+#include <stdio.h>
+#include <string.h>
 
-void	send_message(int pid, char *bits)
+int send_null(int pid)
 {
-	int i;
-
-	i = 0;
-	while(bits[i] != '\0')
+	static int i;
+	while (i < 8)
 	{
-		if(bits[i] == '1')
-			kill(pid, SIGUSR1);
-		if(bits[i] == '0')
-			kill(pid, SIGUSR2);
-		i++;
+		kill(pid, SIGUSR2);
+		++i;
+		return (0);
 	}
+	return (1);
 }
 
-char	*convert_to_bits(char *str)
+int	handle_message(char *ostr, int opid)
 {
-	size_t	i;
-	char	*converted;
+	static int	i;
+	static int	bit;
+	static char *str;
+	static int	pid;
 
-	i = ft_strlen(str);
-	converted = malloc(i * 8 * sizeof(char) + 1);
-	while (i >= 0)
+	if (ostr)
+		str = ft_strdup(ostr);
+	if (opid)
+		pid = opid;
+	
+	while (str[i])
 	{
-
+		while (bit < BYTE_SIZE)
+		{
+			if (str[i] & (0x80 >> bit))
+				kill(pid, SIGUSR1);
+			else
+				kill(pid, SIGUSR2);
+			bit++;
+			return (0);
+		}
+		i++;
+		bit = 0;
 	}
-	return (converted);
+	
+	return (send_null(pid));
+}
 
+void	client_handler(int signum, siginfo_t *info, void *kek)
+{
+	(void) kek;
+	(void) info;
+	if (signum == SIGUSR1)
+	{
+		if (handle_message(0, 0) == 1)
+		{
+			write(1,"Message recieved!\n",19);
+			exit(0);
+		}
+	}
 }
 
 int	main(int argc, char **argv)
 {
 	int		pid;
-	char	*bits;
+	t_sigaction	sa_signal;
 
+	sa_signal.sa_handler = 0;
+	sa_signal.sa_flags = SA_SIGINFO;
+	sa_signal.sa_sigaction = client_handler;
+	sigaction(SIGUSR1, &sa_signal, NULL);
+	sigaction(SIGUSR2, &sa_signal, NULL);
 	if(argc == 3)
 	{
 		pid = ft_atoi(argv[1]);
-		bits = convert_to_bits(argv[2]);
+		handle_message(argv[2], pid);
 	}
 	else
 		ft_printf("Wrong number of arguments!");
-		return (0);
+	while (1)
+		pause();
+	return (0);
 }

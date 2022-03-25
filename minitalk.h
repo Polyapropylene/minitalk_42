@@ -9,6 +9,7 @@
 
 # define BYTE_SIZE 8
 
+typedef struct sigaction t_sigaction;
 int		ft_atoi(const char *str);
 
 #endif
